@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enviar a Impresora</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #0066cc;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #0066cc;
+      color: white;
+      font-weight: bold;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #004999;
+    }
+
+    pre {
+      background-color: #f0f0f0;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 20px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Enviar Comando a Impresora</h2>
+
+    <label for="ip">IP de la impresora</label>
+    <input type="text" id="ip" placeholder="Ej: 10.120.9.31" />
+
+    <label for="cmd">Texto del comando</label>
+    <input type="text" id="cmd" placeholder="Ej: Print Test Page" />
+
+    <button onclick="sendCommand()">Enviar</button>
+
+    <pre id="output"></pre>
+  </div>
+
+  <script>
+    async function sendCommand() {
+      const ip = document.getElementById("ip").value.trim();
+      const rawCmd = document.getElementById("cmd").value.trim();
+      const output = document.getElementById("output");
+
+      if (!ip || !rawCmd) {
+        output.textContent = "Por favor completa ambos campos.";
+        return;
+      }
+
+      // Reemplaza espacios con +
+      const cmd = rawCmd.replace(/ /g, '+');
+      const url = `http://${ip}/prn_stat.htm?page_p2=${cmd}`;
+
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Referer": `http://${ip}/prn_stat.htm`,
+            "User-Agent": "Mozilla/5.0",
+            "Accept": "text/html,application/xhtml+xml"
+          }
+        });
+
+        const text = await response.text();
+        output.textContent = `✅ Código: ${response.status}\n\n${text}`;
+      } catch (err) {
+        output.textContent = `❌ Error: ${err}`;
+      }
+    }
+  </script>
+</body>
+</html>
