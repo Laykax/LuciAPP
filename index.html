@@ -99,7 +99,7 @@
         return;
       }
 
-      const cmd = rawCmd.replace(/ /g, '+');
+      const cmd = rawCmd.replace(/ /g, '+'); // ✅ espacios → +
       const url = `http://${ip}/prn_stat.htm?page_p2=${cmd}`;
 
       output.textContent = `> Enviando a ${ip}...\n> Comando: ${cmd}`;
@@ -108,16 +108,20 @@
         const response = await fetch(url, {
           method: "GET",
           headers: {
+            "Host": ip,
+            "Accept-Language": "es-419,es;q=0.9",
+            "Upgrade-Insecure-Requests": "1",
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
             "Referer": `http://${ip}/prn_stat.htm`,
-            "User-Agent": "Mozilla/5.0 (Galaxy S24 Ultra) Chrome",
-            "Accept": "text/html,application/xhtml+xml"
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive"
           }
         });
 
         const text = await response.text();
         output.textContent =
-          `> ✅ Código: ${response.status}\n\n` +
-          text;
+          `> ✅ Código HTTP: ${response.status}\n\n${text}`;
       } catch (err) {
         output.textContent = `> ❌ ERROR: ${err}`;
       }
